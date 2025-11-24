@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 import random
 import arrow
+import textwrap  # <--- 新增：用于清除 HTML 字符串前的缩进空格
 from datetime import datetime
 
 # ==========================================
@@ -160,30 +161,31 @@ def render_html_card(data):
     c_24h = "trend-up" if data['change_24h'] >= 0 else "trend-down"
 
     # 构建 HTML 卡片
-    html_code = f"""
-    <div class="metric-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <div style="font-size: 1.2rem; font-weight: bold; color: #EAECEF;">{data['symbol']} <span style="font-size: 0.8rem; color: #848E9C; background: #2B3139; padding: 2px 6px; border-radius: 4px;">PERP</span></div>
-            <div class="metric-value">${data['price']:,.2f}</div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 15px;">
-            <div><div class="metric-label">1H</div><div class="{c_1h}">{data['change_1h'] * 100:+.2f}%</div></div>
-            <div><div class="metric-label">4H</div><div class="{c_4h}">{data['change_4h'] * 100:+.2f}%</div></div>
-            <div style="text-align: right;"><div class="metric-label">24H</div><div class="{c_24h}">{data['change_24h'] * 100:+.2f}%</div></div>
-        </div>
-
-        <div style="border-top: 1px solid #2B3139; padding-top: 10px;">
-            <div style="display: flex; justify-content: space-between;">
-                <span class="metric-label">Open Interest</span>
-                <span style="color: #EAECEF; font-weight: 500;">{format_currency(data['oi_value'])}</span>
+    # 【关键修改】使用 textwrap.dedent 去除多行字符串前的缩进空格
+    html_code = textwrap.dedent(f"""
+        <div class="metric-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="font-size: 1.2rem; font-weight: bold; color: #EAECEF;">{data['symbol']} <span style="font-size: 0.8rem; color: #848E9C; background: #2B3139; padding: 2px 6px; border-radius: 4px;">PERP</span></div>
+                <div class="metric-value">${data['price']:,.2f}</div>
             </div>
-            <div style="margin-top: 5px; height: 6px; background: #2B3139; border-radius: 3px; overflow: hidden;">
-                <div style="width: 70%; height: 100%; background: linear-gradient(90deg, #0ECB81 0%, #25a69a 100%);"></div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 15px;">
+                <div><div class="metric-label">1H</div><div class="{c_1h}">{data['change_1h'] * 100:+.2f}%</div></div>
+                <div><div class="metric-label">4H</div><div class="{c_4h}">{data['change_4h'] * 100:+.2f}%</div></div>
+                <div style="text-align: right;"><div class="metric-label">24H</div><div class="{c_24h}">{data['change_24h'] * 100:+.2f}%</div></div>
+            </div>
+
+            <div style="border-top: 1px solid #2B3139; padding-top: 10px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span class="metric-label">Open Interest</span>
+                    <span style="color: #EAECEF; font-weight: 500;">{format_currency(data['oi_value'])}</span>
+                </div>
+                <div style="margin-top: 5px; height: 6px; background: #2B3139; border-radius: 3px; overflow: hidden;">
+                    <div style="width: 70%; height: 100%; background: linear-gradient(90deg, #0ECB81 0%, #25a69a 100%);"></div>
+                </div>
             </div>
         </div>
-    </div>
-    """
+    """)
     st.markdown(html_code, unsafe_allow_html=True)
 
 
